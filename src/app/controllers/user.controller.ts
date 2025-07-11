@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { user } from "../models/users.models";
-import z from "zod";
+import z, { success } from "zod";
+
 
 export const userRoutes = express.Router();
 
@@ -17,7 +18,21 @@ userRoutes.post("/createUser", async (req: Request, res: Response) => {
         // const body = await createUserZodSchema.parseAsync(req.body)
 
         const body = req.body
+
+        // type-1
+        // const password = await user.hashPassword(body.password);
+        // body.password = password;
+
+
         const newUser = await user.create(body);
+
+        // type-2
+        // const newUser = new user(body); // create instance
+        // const password = await newUser.hashPassword(body.password); // hash password
+        // newUser.password = password;
+        // await newUser.save(); // save to D
+
+
         res.status(201).json({
             success: true,
             message: "user Created Successfully",
@@ -53,3 +68,16 @@ userRoutes.get("/", async (req: Request, res: Response) => {
 
 }
 )
+
+
+userRoutes.delete('/:userId', async (req: Request, res: Response) => {
+
+    const userId = req.params.userId
+
+    const findAndDeleteUser = await user.findOneAndDelete({_id : userId})
+
+    res.status(201).json({
+        success : true,
+        findAndDeleteUser
+    })
+})
